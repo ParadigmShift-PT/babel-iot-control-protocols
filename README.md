@@ -76,25 +76,6 @@ Higher-level helpers live alongside the protocols:
 
 ---
 
-## Local API duplication
-
-For historical reasons the project bundles its own local copy of the
-`pt.unl.fct.di.tardis.babel.iot.api.*` classes (under `src/main/java/...`)
-in addition to the published [`babel-iot-control-api`](../babel-iot-control-api).
-
-The local copy is a slightly older snapshot — most files match, but
-the request hierarchy uses the older `IoTEventRequest` /
-`IoTPeriodicEventRequest` / `IoTReactiveEventRequest` naming, while
-the published API has been renamed to `IoTInputRequest` /
-`IoTPeriodicInputRequest` / `IoTReactiveInputRequest` and split into
-`IoTInputRequest` / `IoTOutputRequest`.
-
-Until the protocols are migrated to the published API, the local
-package is authoritative for this module's compilation. The two are
-not interchangeable.
-
----
-
 ## Usage
 
 Add to your `pom.xml`:
@@ -119,6 +100,7 @@ Add to your `pom.xml`:
 
 This artifact transitively brings:
 
+- `pt.paradigmshift.iot:babel-iot-control-api` — abstract Babel events, device handles, threshold predicates
 - `pt.paradigmshift.babel:babel-core` — Babel runtime (`GenericProtocol`, `ProtoRequest`, `ProtoReply`, `ProtoNotification`)
 - `pt.paradigmshift.iot:pi4j-iot-device-library` — Grove device wrappers
 - `pt.paradigmshift.iot:pi4j-components` — Pi4J component catalogue and runtime plugins
@@ -161,6 +143,7 @@ mvn deploy    # publish to maven.paradigmshift.pt (requires REPOSILITE_TOKEN)
 
 The protocols depend on:
 
+- `pt.paradigmshift.iot:babel-iot-control-api:1.0.1`
 - `pt.paradigmshift.babel:babel-core:1.0.0`
 - `pt.paradigmshift.iot:pi4j-iot-device-library:1.0.0`
 - `pt.paradigmshift.iot:pi4j-components:0.0.7`
@@ -184,7 +167,7 @@ git push origin v1.0.0
 
 | Artifact | Purpose |
 |---|---|
-| `pt.paradigmshift.iot:babel-iot-control-api` | Canonical Babel events and supporting types |
+| `pt.paradigmshift.iot:babel-iot-control-api:1.0.1` | Canonical Babel events and supporting types (consumed by this project) |
 | `pt.paradigmshift.iot:babel-iot-control-protocols` | This artifact — concrete protocol implementations |
 | `pt.paradigmshift.iot:pi4j-iot-device-library` | Java device wrappers driven by the protocols |
 

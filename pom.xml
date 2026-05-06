@@ -135,6 +135,11 @@
         </dependency>
         <dependency>
             <groupId>pt.paradigmshift.iot</groupId>
+            <artifactId>babel-iot-control-api</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>pt.paradigmshift.iot</groupId>
             <artifactId>pi4j-iot-device-library</artifactId>
             <version>1.0.0</version>
         </dependency>
