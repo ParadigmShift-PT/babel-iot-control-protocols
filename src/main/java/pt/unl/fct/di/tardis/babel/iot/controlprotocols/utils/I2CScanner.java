@@ -15,11 +15,26 @@ import pt.unl.fct.di.novasys.iot.device.i2c.GroveLcd;
 import pt.unl.fct.di.novasys.iot.device.i2c.GroveLedMatrix;
 import pt.unl.fct.di.tardis.babel.iot.api.DeviceType;
 
+/**
+ * Singleton helper that probes the local I²C bus and tracks which
+ * Grove I²C devices are currently connected.
+ * <p>
+ * The scanner shells out to the system {@code i2cdetect} utility
+ * because Pi4J does not currently expose a programmatic device-ping
+ * primitive. Each scan rebuilds the set of connected devices, with a
+ * minimum interval of {@value #SCAN_INTERVAL_MS}&nbsp;ms between
+ * scans (callers can force a refresh via the boolean overloads).
+ *
+ * @author João Brilha (j.brilha@campus.fct.unl.pt)
+ * @author João Leitão (jc.leitao@fct.unl.pt)
+ */
 public class I2CScanner {
     private static final Logger logger = LogManager.getLogger(I2CScanner.class);
+    /** Minimum interval between automatic re-scans, in milliseconds. */
     private static final int SCAN_INTERVAL_MS = 60_000; // 1 minute
 
     private static I2CScanner instance;
+    /** Devices currently considered connected. */
     Set<DeviceType> connectedDevices;
     private static long lastScan;
 

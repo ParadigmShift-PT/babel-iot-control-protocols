@@ -46,9 +46,27 @@ import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.input.GetGesture
 import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.input.GetReactiveGestureRequest;
 import pt.unl.fct.di.tardis.babel.iot.controlprotocols.utils.I2CScanner;
 
+/**
+ * Babel protocol that drives Grove I²C-input sensors attached to a
+ * Raspberry Pi (gesture detector, three-axis accelerometer; barometer
+ * support is wired but not yet exposed through the registration
+ * switch).
+ * <p>
+ * Each registration consults the {@link I2CScanner} singleton to
+ * confirm the device is physically present on the bus before the
+ * driver is instantiated. Reactive gesture requests are delegated to
+ * {@link IoTMonitoringService}, which fires
+ * {@code GestureNotification}s whenever the configured threshold
+ * accepts a detected gesture.
+ *
+ * @author João Brilha (j.brilha@campus.fct.unl.pt)
+ * @author João Leitão (jc.leitao@fct.unl.pt)
+ */
 public class I2CInputControlProtocol extends GenericProtocol {
 
+    /** Babel protocol name reported to the runtime. */
     public final static String PROTOCOL_NAME = "I2CInputControlProtocol";
+    /** Babel protocol id used to address this protocol. */
     public final static short PROTOCOL_ID = 4001;
 
     private static final Logger logger =
@@ -69,6 +87,11 @@ public class I2CInputControlProtocol extends GenericProtocol {
     private final HashMap<DeviceHandle, Device> deviceMappings;
     private final HashMap<Device, Set<DeviceHandle>> deviceHandles;
 
+    /**
+     * Builds a fresh protocol instance, including a dedicated Pi4J
+     * context plus references to the shared {@link I2CScanner} and
+     * {@link IoTMonitoringService} singletons.
+     */
     public I2CInputControlProtocol() {
         super(PROTOCOL_NAME, PROTOCOL_ID);
 
@@ -102,6 +125,11 @@ public class I2CInputControlProtocol extends GenericProtocol {
         this.deviceHandles = new HashMap<Device, Set<DeviceHandle>>();
     }
 
+    /**
+     * Registers handlers for device registration / unregistration,
+     * the immediate gesture and accelerometer reads, and the reactive
+     * gesture watcher. {@code props} is currently unused.
+     */
     @Override
     public void init(Properties props)
         throws HandlerRegistrationException, IOException {
@@ -131,6 +159,13 @@ public class I2CInputControlProtocol extends GenericProtocol {
      * handles for Protoocol Requests
      ******************************************************************************/
 
+    /**
+     * Handles a device-registration request. Rejects devices whose
+     * {@link DeviceInterface} is not {@code I2C_IN}, devices not
+     * detected on the I²C bus, and unknown {@code DeviceType}s;
+     * otherwise lazily initialises the underlying driver and replies
+     * with a fresh {@link DeviceHandle}.
+     */
     public void handleRegisterIoTDeviceRequest(RegisterIoTDeviceRequest req,
                                                short protocolId) {
 
@@ -412,9 +447,17 @@ public class I2CInputControlProtocol extends GenericProtocol {
         sendReply(new RegisterIoTDeviceReply(handle), protocolId);
     }
 
+    /** Currently a stub — handler not yet implemented. */
     public void handleUnregisterIoTDeviceRequest(UnregisterIoTDeviceRequest req,
                                                  short protocolId) {}
 
+    /**
+     * Samples the registered Grove three-axis accelerometer in the
+     * read mode carried by the request and replies with the result.
+     * Replies {@code DEVICE_NOT_AVAILABLE} if the accelerometer is
+     * not present and {@code FAILED_MEASUREMENT} for unsupported read
+     * modes.
+     */
     public void handleAccelerometerInputRequest(GetAccelerometerDataRequest req,
                                                 short protocolId) {
         logger.debug("Received an GetAccelerometerDataRequest");
@@ -478,6 +521,11 @@ public class I2CInputControlProtocol extends GenericProtocol {
         }
     }
 
+    /**
+     * Reads the latest gesture from the Grove gesture detector and
+     * replies with a {@link GestureInputReply}. Replies
+     * {@code DEVICE_NOT_AVAILABLE} if the detector is not present.
+     */
     public void handleGestureInputRequest(GetGestureRequest req,
                                           short protocolId) {
         logger.debug("Received a GetGestureRequest");
@@ -501,9 +549,15 @@ public class I2CInputControlProtocol extends GenericProtocol {
         }
     }
 
+    /** Generic periodic-event handler — currently a stub. */
     public void handleIoTPeriodicEventRequest(IoTPeriodicEventRequest req,
                                               short protocolId) {}
 
+    /**
+     * Schedules a {@link GestureListener} on the
+     * {@link IoTMonitoringService} to fire a {@link GestureNotification}
+     * whenever the supplied threshold accepts a detected gesture.
+     */
     public void handleReactiveGestureInputRequest(GetReactiveGestureRequest req,
                                                   short protocolId) {
         logger.debug("Received a GetReactiveGestureRequest");

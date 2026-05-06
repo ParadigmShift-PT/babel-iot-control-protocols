@@ -41,11 +41,25 @@ import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.output.SetChaina
 import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.output.SetMultipleChainableLEDColorHSBRequest;
 import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.output.SetMultipleChainableLEDColorRGBRequest;
 
+/**
+ * Babel protocol that drives Grove digital-output actuators attached
+ * to a Raspberry Pi (currently the chainable RGB LED strip).
+ * <p>
+ * The strip length is read from the configuration property
+ * {@value #RGB_LED_COUNT} on {@link #init(Properties)}; a default of
+ * one LED is assumed if the property is absent.
+ *
+ * @author João Brilha (j.brilha@campus.fct.unl.pt)
+ * @author João Leitão (jc.leitao@fct.unl.pt)
+ */
 public class DigitalOutputControlProtocol extends GenericProtocol {
 
+	/** Babel protocol name reported to the runtime. */
 	public final static String PROTOCOL_NAME = "DigitalOutputControlProtocol";
+	/** Babel protocol id used to address this protocol. */
 	public final static short PROTOCOL_ID = 4003;
 
+	/** Configuration property name carrying the chainable-RGB strip length. */
 	public final static String RGB_LED_COUNT = "rgb.led.count";
 
 	private static final Logger logger = LogManager.getLogger(DigitalOutputControlProtocol.class);
@@ -62,6 +76,10 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 	private final HashMap<DeviceHandle, Device> deviceMappings;
 	private final HashMap<Device, Set<DeviceHandle>> deviceHandles;
 
+	/**
+	 * Builds a fresh protocol instance, including a dedicated Pi4J
+	 * context. Created devices and handles are tracked per-instance.
+	 */
 	public DigitalOutputControlProtocol() {
 		super(PROTOCOL_NAME, PROTOCOL_ID);
 
@@ -84,6 +102,12 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 		this.deviceHandles = new HashMap<Device, Set<DeviceHandle>>();
 	}
 
+	/**
+	 * Reads the chainable-RGB strip length from {@code props} (key
+	 * {@value #RGB_LED_COUNT}; defaults to {@code 1}) and registers
+	 * handlers for device registration / unregistration plus the four
+	 * chainable-LED colour-setting requests.
+	 */
 	@Override
 	public void init(Properties props) throws HandlerRegistrationException, IOException {
 		if (props.containsKey(RGB_LED_COUNT)) {
@@ -123,6 +147,12 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 	 * GROVE_ULTRASONIC_RANGER(DeviceInterface.DIGITAL);
 	 */
 
+	/**
+	 * Handles a device-registration request. Rejects devices whose
+	 * {@link DeviceInterface} is not {@code DIGITAL_OUT}; otherwise
+	 * lazily initialises the underlying driver and replies with a
+	 * fresh {@link DeviceHandle}.
+	 */
 	public void handleRegisterIoTDeviceRequest(RegisterIoTDeviceRequest req, short protocolId) {
 
 		if (!req.getDeviceType().getDeviceInterface().equals(DeviceInterface.DIGITAL_OUT)) {
@@ -185,6 +215,7 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 		}
 	}
 
+	/** Drives a single pixel of the chainable RGB strip from an 8-bit RGB triplet. */
 	public void handleChainableLEDColorRGBRequest(SetChainableLEDColorRGBRequest req, short protocolId) {
 		logger.debug("Received a SetChainableLEDColorRGBRequest");
 		DeviceHandle h = req.getDeviceHandle();
@@ -197,6 +228,7 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 		}
 	}
 
+	/** Drives a single pixel of the chainable RGB strip from HSB coordinates. */
 	public void handleChainableLEDColorHSBRequest(SetChainableLEDColorHSBRequest req, short protocolId) {
 		logger.debug("Received a SetChainableLEDColorHSBRequest");
 		DeviceHandle h = req.getDeviceHandle();
@@ -209,6 +241,7 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 		}
 	}
 
+	/** Drives several pixels of the chainable RGB strip in one shot, each from an 8-bit RGB triplet. */
 	public void handleMultipleChainableLEDColorRGBRequest(SetMultipleChainableLEDColorRGBRequest req,
 			short protocolId) {
 		logger.debug("Received a SetChainableLEDColorRGBRequest");
@@ -228,6 +261,7 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 		}
 	}
 
+	/** Drives several pixels of the chainable RGB strip in one shot, each from HSB coordinates. */
 	public void handleMultipleChainableLEDColorHSBRequest(SetMultipleChainableLEDColorHSBRequest req,
 			short protocolId) {
 		logger.debug("Received a SetChainableLEDColorHSBRequest");
@@ -246,6 +280,7 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 		}
 	}
 
+	/** Currently a stub — handler not yet implemented. */
 	public void handleUnregisterIoTDeviceRequest(UnregisterIoTDeviceRequest req, short protocolId) {
 	}
 

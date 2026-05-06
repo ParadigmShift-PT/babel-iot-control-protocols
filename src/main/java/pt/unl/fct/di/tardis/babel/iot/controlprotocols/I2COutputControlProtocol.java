@@ -45,9 +45,25 @@ import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.output.ShowEmoji
 import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.output.ShowTextRequest;
 import pt.unl.fct.di.tardis.babel.iot.controlprotocols.utils.I2CScanner;
 
+/**
+ * Babel protocol that drives Grove I²C-output actuators attached to a
+ * Raspberry Pi (currently the LCD and the LED matrix).
+ * <p>
+ * Each registration consults the {@link I2CScanner} singleton to
+ * confirm the device is physically present on the bus before the
+ * driver is instantiated. Concrete display payloads are carried by
+ * the request types under
+ * {@code controlprotocols.requests.output} (clear / show animation /
+ * show emoji / show text / display bar / show display / set colour).
+ *
+ * @author João Brilha (j.brilha@campus.fct.unl.pt)
+ * @author João Leitão (jc.leitao@fct.unl.pt)
+ */
 public class I2COutputControlProtocol extends GenericProtocol {
 
+    /** Babel protocol name reported to the runtime. */
     public final static String PROTOCOL_NAME = "I2COutputControlProtocol";
+    /** Babel protocol id used to address this protocol. */
     public final static short PROTOCOL_ID = 4000;
 
     private static final Logger logger =
@@ -66,6 +82,11 @@ public class I2COutputControlProtocol extends GenericProtocol {
     private final HashMap<DeviceHandle, Device> deviceMappings;
     private final HashMap<Device, Set<DeviceHandle>> deviceHandles;
 
+    /**
+     * Builds a fresh protocol instance, including a dedicated Pi4J
+     * context plus a reference to the shared {@link I2CScanner}
+     * singleton.
+     */
     public I2COutputControlProtocol() {
         super(PROTOCOL_NAME, PROTOCOL_ID);
 
@@ -98,6 +119,12 @@ public class I2COutputControlProtocol extends GenericProtocol {
         this.deviceHandles = new HashMap<Device, Set<DeviceHandle>>();
     }
 
+    /**
+     * Registers handlers for device registration / unregistration plus
+     * the seven supported output operations (set colour, show
+     * animation, show emoji, show text, show display, display bar,
+     * clear display). {@code props} is currently unused.
+     */
     @Override
     public void init(Properties props)
         throws HandlerRegistrationException, IOException {
@@ -125,6 +152,13 @@ public class I2COutputControlProtocol extends GenericProtocol {
      * handles for Protoocol Requests
      ******************************************************************************/
 
+    /**
+     * Handles a device-registration request. Rejects devices whose
+     * {@link DeviceInterface} is not {@code I2C_OUT}, devices not
+     * detected on the I²C bus, and unknown {@code DeviceType}s;
+     * otherwise lazily initialises the underlying driver and replies
+     * with a fresh {@link DeviceHandle}.
+     */
     public void handleRegisterIoTDeviceRequest(RegisterIoTDeviceRequest req,
                                                short protocolId) {
 
@@ -265,9 +299,11 @@ public class I2COutputControlProtocol extends GenericProtocol {
         }
     }
 
+    /** Currently a stub — handler not yet implemented. */
     public void handleUnregisterIoTDeviceRequest(UnregisterIoTDeviceRequest req,
                                                  short protocolId) {}
 
+    /** Sets the global colour of the registered LED matrix. */
     public void handleSetDisplayColorRequest(SetDisplayColorRequest req,
                                              short protocolId) {
         logger.debug("Received a SetDisplayColorRequest");
@@ -281,6 +317,7 @@ public class I2COutputControlProtocol extends GenericProtocol {
         }
     }
 
+    /** Drives the LED matrix as a level bar at the request's level (0–32). */
     public void handleDisplayBarRequest(DisplayBarRequest req,
     									  short protocolId) {
     	logger.debug("Received a DisplayBarRequest");
@@ -293,6 +330,7 @@ public class I2COutputControlProtocol extends GenericProtocol {
         }
     }
 
+    /** Clears the LED matrix. */
     public void handleClearDisplayRequest(ClearDisplayRequest req,
     									  short protocolId) {
     	logger.debug("Received a ClearDisplayRequest");
@@ -305,6 +343,7 @@ public class I2COutputControlProtocol extends GenericProtocol {
         }
     }
     
+    /** Loads a raw bitmap onto the LED matrix. */
     public void handleShowDisplayRequest(ShowDisplayRequest req,
                                          short protocolId) {
         logger.debug("Received a ShowDisplayRequest");
@@ -317,6 +356,7 @@ public class I2COutputControlProtocol extends GenericProtocol {
         }
     }
 
+    /** Plays one of the LED matrix's built-in animations. */
     public void handleShowAnimationRequest(ShowAnimationRequest req,
                                            short protocolId) {
         logger.debug("Received a ShowAnimationRequest");
@@ -329,6 +369,7 @@ public class I2COutputControlProtocol extends GenericProtocol {
         }
     }
 
+    /** Renders one of the LED matrix's built-in emoji. */
     public void handleShowEmojiRequest(ShowEmojiRequest req, short protocolId) {
         logger.debug("Received a ShowEmojiRequest");
         DeviceHandle h = req.getDeviceHandle();
@@ -340,6 +381,7 @@ public class I2COutputControlProtocol extends GenericProtocol {
         }
     }
 
+    /** Writes the request's text onto the registered LCD. */
     public void handleShowTextRequest(ShowTextRequest req, short protocolId) {
         logger.debug("Received a ShowTextRequest");
         DeviceHandle h = req.getDeviceHandle();

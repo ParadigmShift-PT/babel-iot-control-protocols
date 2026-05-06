@@ -47,9 +47,27 @@ import pt.unl.fct.di.tardis.babel.iot.controlprotocols.replies.UltrasonicRangerI
 import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.input.GetReactiveEncoderRequest;
 import pt.unl.fct.di.tardis.babel.iot.controlprotocols.requests.input.GetUltrasonicRangerMeasurementRequest;
 
+/**
+ * Babel protocol that drives Grove digital-input sensors attached to a
+ * Raspberry Pi (currently the ultrasonic ranger and the rotary encoder).
+ * <p>
+ * The protocol owns a Pi4J {@link Context} configured with the standard
+ * digital-input / digital-output / I²C providers, and maintains the
+ * mapping between
+ * {@link pt.unl.fct.di.tardis.babel.iot.api.DeviceHandle} values and
+ * the underlying device drivers. Reactive encoder requests are
+ * delegated to {@link IoTMonitoringService}, which fires
+ * {@code EncoderNotification}s whenever the configured threshold
+ * accepts an observed rotation.
+ *
+ * @author João Brilha (j.brilha@campus.fct.unl.pt)
+ * @author João Leitão (jc.leitao@fct.unl.pt)
+ */
 public class DigitalInputControlProtocol extends GenericProtocol {
 
+    /** Babel protocol name reported to the runtime. */
     public final static String PROTOCOL_NAME = "DigitalInputControlProtocol";
+    /** Babel protocol id used to address this protocol. */
     public final static short PROTOCOL_ID = 4002;
 
     private static final Logger logger =
@@ -68,6 +86,10 @@ public class DigitalInputControlProtocol extends GenericProtocol {
     private final HashMap<DeviceHandle, Device> deviceMappings;
     private final HashMap<Device, Set<DeviceHandle>> deviceHandles;
 
+    /**
+     * Builds a fresh protocol instance, including a dedicated Pi4J
+     * context. Created devices and handles are tracked per-instance.
+     */
     public DigitalInputControlProtocol() {
         super(PROTOCOL_NAME, PROTOCOL_ID);
 
@@ -100,6 +122,11 @@ public class DigitalInputControlProtocol extends GenericProtocol {
         this.deviceHandles = new HashMap<Device, Set<DeviceHandle>>();
     }
 
+    /**
+     * Registers handlers for the Babel requests this protocol consumes:
+     * device registration / unregistration plus the reactive encoder
+     * request. {@code props} is currently unused.
+     */
     @Override
     public void init(Properties props)
         throws HandlerRegistrationException, IOException {
@@ -126,6 +153,12 @@ public class DigitalInputControlProtocol extends GenericProtocol {
      * GROVE_ULTRASONIC_RANGER(DeviceInterface.DIGITAL);
      */
 
+    /**
+     * Handles a device-registration request. Rejects devices whose
+     * {@link DeviceInterface} is not {@code DIGITAL_IN}; otherwise
+     * lazily initialises the underlying driver and replies with a
+     * fresh {@link DeviceHandle}.
+     */
     public void handleRegisterIoTDeviceRequest(RegisterIoTDeviceRequest req,
                                                short protocolId) {
 
@@ -280,9 +313,16 @@ public class DigitalInputControlProtocol extends GenericProtocol {
         sendReply(new RegisterIoTDeviceReply(handle), protocolId);
     }
 
+    /** Currently a stub — handler not yet implemented. */
     public void handleUnregisterIoTDeviceRequest(UnregisterIoTDeviceRequest req,
                                                  short protocolId) {}
 
+    /**
+     * Schedules an {@link EncoderListener} on the
+     * {@link IoTMonitoringService} to fire an
+     * {@link EncoderNotification} whenever the supplied threshold
+     * accepts the observed rotation.
+     */
     public void handleReactiveEncoderInputRequest(GetReactiveEncoderRequest req,
                                                   short protocolId) {
         logger.debug("Received a GetReactiveGestureRequest");
@@ -311,6 +351,12 @@ public class DigitalInputControlProtocol extends GenericProtocol {
         }
     }
 
+    /**
+     * Samples the registered {@code GroveUltrasonicRanger} in the unit
+     * carried by the request and replies with the result. Replies
+     * {@code DEVICE_NOT_AVAILABLE} if the ranger is not present and
+     * {@code FAILED_MEASUREMENT} for unsupported units.
+     */
     public void
     handleRangerMeasurmentRequest(GetUltrasonicRangerMeasurementRequest req,
                                   short protocolId) {
@@ -360,9 +406,11 @@ public class DigitalInputControlProtocol extends GenericProtocol {
         }
     }
 
+    /** Generic periodic-input handler — currently a stub. */
     public void handleIoTPeriodicInputRequest(IoTPeriodicEventRequest req,
                                               short protocolId) {}
 
+    /** Generic reactive-input handler — currently a stub. */
     public void handleIoTReactiveInputRequest(IoTReactiveEventRequest<?> req,
                                               short protocolId) {}
 }

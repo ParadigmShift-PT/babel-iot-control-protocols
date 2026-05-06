@@ -4,6 +4,23 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Predicate used by reactive input requests to decide whether a freshly
+ * sampled value should produce a notification.
+ * <p>
+ * A {@code Threshold} is constructed through one of the static factory
+ * methods ({@link #equalTo(Object)}, {@link #lessThan(Object, Comparator)},
+ * {@link #inRange(Object, Object, Comparator)}, …) and evaluated with
+ * {@link #test(Object)}. Comparison-based thresholds (less-than,
+ * greater-than, range) require an explicit {@link Comparator}; equality
+ * thresholds fall back to {@link Objects#equals(Object, Object)} when no
+ * comparator is supplied.
+ *
+ * @param <T> the type of value being thresholded.
+ *
+ * @author João Brilha (j.brilha@campus.fct.unl.pt)
+ * @author João Leitão (jc.leitao@fct.unl.pt)
+ */
 public class Threshold<T> {
     private final ThresholdType type;
     private final T singleValue;
@@ -12,6 +29,7 @@ public class Threshold<T> {
     private final Set<T> multipleValues;
     private final Comparator<T> comparator;
 
+    /** Internal classification of supported predicate shapes. */
     private enum ThresholdType {
         NONE,          // always trigger
         EQUAL,         // trigger if value is equal to the threshold value
@@ -23,55 +41,99 @@ public class Threshold<T> {
         ANY            // trigger if value matches any of the threshold values
     }
 
+    /**
+     * @return a threshold that always triggers (no filtering applied).
+     * @param <T> the value type the threshold will be tested against.
+     */
     public static <T> Threshold<T> none() {
         return new Threshold<>(ThresholdType.NONE, null, null, null, null,
                                null);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value compares
+     * equal to {@code value} according to the supplied comparator.
+     */
     public static <T> Threshold<T> equalTo(T value, Comparator<T> comparator) {
         return new Threshold<>(ThresholdType.EQUAL, value, null, null, null,
                                comparator);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value is equal
+     * to {@code value} according to {@link Objects#equals(Object, Object)}.
+     */
     public static <T> Threshold<T> equalTo(T value) {
         return new Threshold<>(ThresholdType.EQUAL, value, null, null, null,
                                null);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value is
+     * <em>not</em> equal to {@code value} according to the supplied
+     * comparator.
+     */
     public static <T> Threshold<T> notEqualTo(T value,
                                               Comparator<T> comparator) {
         return new Threshold<>(ThresholdType.NOT_EQUAL, value, null, null, null,
                                comparator);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value is
+     * <em>not</em> equal to {@code value} according to
+     * {@link Objects#equals(Object, Object)}.
+     */
     public static <T> Threshold<T> notEqualTo(T value) {
         return new Threshold<>(ThresholdType.NOT_EQUAL, value, null, null, null,
                                null);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value is
+     * strictly less than {@code value}. A comparator is required.
+     */
     public static <T> Threshold<T> lessThan(T value, Comparator<T> comparator) {
         return new Threshold<>(ThresholdType.LESS_THAN, value, null, null, null,
                                comparator);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value is
+     * strictly greater than {@code value}. A comparator is required.
+     */
     public static <T> Threshold<T> greaterThan(T value,
                                                Comparator<T> comparator) {
         return new Threshold<>(ThresholdType.GREATER_THAN, value, null, null,
                                null, comparator);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value lies
+     * inside the inclusive range {@code [lowerBound, upperBound]}.
+     * A comparator is required.
+     */
     public static <T> Threshold<T> inRange(T lowerBound, T upperBound,
                                            Comparator<T> comparator) {
         return new Threshold<>(ThresholdType.IN_RANGE, null, lowerBound,
                                upperBound, null, comparator);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value lies
+     * outside the inclusive range {@code [lowerBound, upperBound]}.
+     * A comparator is required.
+     */
     public static <T> Threshold<T> outsideRange(T lowerBound, T upperBound,
                                                 Comparator<T> comparator) {
         return new Threshold<>(ThresholdType.OUTSIDE_RANGE, null, lowerBound,
                                upperBound, null, comparator);
     }
 
+    /**
+     * Builds a threshold that triggers when the sampled value belongs
+     * to {@code values}.
+     */
     public static <T> Threshold<T> any(Set<T> values) {
         return new Threshold<>(ThresholdType.ANY, null, null, null, values,
                                null);
@@ -88,6 +150,16 @@ public class Threshold<T> {
         this.comparator = comparator;
     }
 
+    /**
+     * Evaluates the predicate against a freshly sampled value.
+     *
+     * @param value the value sampled from the device; if {@code null}
+     *              the threshold never triggers.
+     * @return {@code true} if a notification should be produced for
+     *         this value, {@code false} otherwise.
+     * @throws IllegalArgumentException if a comparator is required by
+     *         the chosen predicate shape but none was supplied.
+     */
     public boolean test(T value) {
         if (value == null)
             return false;
