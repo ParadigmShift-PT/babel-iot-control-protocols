@@ -21,8 +21,13 @@ import pt.unl.fct.di.tardis.babel.iot.api.replies.IoTInputReply;
  */
 public class BarometerInputReply<T> extends IoTInputReply {
 
-    /** Default Babel reply id used by this class. */
-    public static final short REPLY_ID = 4013;
+    /**
+     * Default Babel reply id used by this class. <b>ID:</b> {@value}.
+     * Handler class: request/reply (shared pool — continues after the
+     * protocol's requests). Owning protocol:
+     * {@code I2CInputControlProtocol} (id 2100).
+     */
+    public static final short REPLY_ID = 2106;
 
     private final InputType.Barometer inputType;
     private final T measurement;

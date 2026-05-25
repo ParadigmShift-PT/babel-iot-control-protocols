@@ -66,8 +66,8 @@ public class I2CInputControlProtocol extends GenericProtocol {
 
     /** Babel protocol name reported to the runtime. */
     public final static String PROTOCOL_NAME = "I2CInputControlProtocol";
-    /** Babel protocol id used to address this protocol. */
-    public final static short PROTOCOL_ID = 4001;
+    /** Babel protocol id used to address this protocol. <b>ID:</b> {@value}. */
+    public final static short PROTOCOL_ID = 2100;
 
     private static final Logger logger =
         LogManager.getLogger(I2CInputControlProtocol.class);

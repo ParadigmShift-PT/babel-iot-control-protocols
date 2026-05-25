@@ -13,8 +13,12 @@ import pt.unl.fct.di.tardis.babel.iot.api.requests.IoTEventRequest;
  */
 public class ShowAnimationRequest extends IoTEventRequest {
 
-    /** Default Babel request id used by this class. */
-    public static final short REQUEST_ID = 8027;
+    /**
+     * Default Babel request id used by this class. <b>ID:</b> {@value}.
+     * Handler class: request/reply (shared pool). Owning protocol:
+     * {@code I2COutputControlProtocol} (id 2000).
+     */
+    public static final short REQUEST_ID = 2003;
 
     private final Animation animation;
 

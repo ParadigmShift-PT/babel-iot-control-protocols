@@ -15,8 +15,12 @@ import pt.unl.fct.di.tardis.babel.iot.api.requests.IoTEventRequest;
  */
 public class GetAccelerometerDataRequest extends IoTEventRequest {
 
-    /** Default Babel request id used by this class. */
-    public static final short REQUEST_ID = 8011;
+    /**
+     * Default Babel request id used by this class. <b>ID:</b> {@value}.
+     * Handler class: request/reply (shared pool). Owning protocol:
+     * {@code I2CInputControlProtocol} (id 2100).
+     */
+    public static final short REQUEST_ID = 2101;
 
     /** Read mode that will be applied to the accelerometer. */
     public final InputType.Accelerometer inputType;

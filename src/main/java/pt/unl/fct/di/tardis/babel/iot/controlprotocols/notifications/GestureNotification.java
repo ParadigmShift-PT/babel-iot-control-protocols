@@ -15,8 +15,12 @@ import pt.unl.fct.di.tardis.babel.iot.api.notifications.IoTInputNotification;
  */
 public class GestureNotification extends IoTInputNotification<PAJ7620GestureType> {
 
-    /** Babel notification id used to dispatch this event. */
-    public static final short NOTIFICATION_ID = 4020;
+    /**
+     * Babel notification id used to dispatch this event. <b>ID:</b> {@value}.
+     * Handler class: notification. Owning protocol:
+     * {@code I2CInputControlProtocol} (id 2100).
+     */
+    public static final short NOTIFICATION_ID = 2101;
 
     /**
      * @param handle the handle of the gesture detector

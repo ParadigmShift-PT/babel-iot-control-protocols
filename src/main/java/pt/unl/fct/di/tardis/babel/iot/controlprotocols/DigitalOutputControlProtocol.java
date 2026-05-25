@@ -56,8 +56,8 @@ public class DigitalOutputControlProtocol extends GenericProtocol {
 
 	/** Babel protocol name reported to the runtime. */
 	public final static String PROTOCOL_NAME = "DigitalOutputControlProtocol";
-	/** Babel protocol id used to address this protocol. */
-	public final static short PROTOCOL_ID = 4003;
+	/** Babel protocol id used to address this protocol. <b>ID:</b> {@value}. */
+	public final static short PROTOCOL_ID = 2300;
 
 	/** Configuration property name carrying the chainable-RGB strip length. */
 	public final static String RGB_LED_COUNT = "rgb.led.count";

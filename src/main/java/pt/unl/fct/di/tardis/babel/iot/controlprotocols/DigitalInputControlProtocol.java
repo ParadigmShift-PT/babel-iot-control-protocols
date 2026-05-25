@@ -67,8 +67,8 @@ public class DigitalInputControlProtocol extends GenericProtocol {
 
     /** Babel protocol name reported to the runtime. */
     public final static String PROTOCOL_NAME = "DigitalInputControlProtocol";
-    /** Babel protocol id used to address this protocol. */
-    public final static short PROTOCOL_ID = 4002;
+    /** Babel protocol id used to address this protocol. <b>ID:</b> {@value}. */
+    public final static short PROTOCOL_ID = 2200;
 
     private static final Logger logger =
         LogManager.getLogger(DigitalInputControlProtocol.class);

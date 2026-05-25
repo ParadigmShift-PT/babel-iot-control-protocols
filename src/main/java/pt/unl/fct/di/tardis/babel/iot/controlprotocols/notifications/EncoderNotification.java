@@ -15,8 +15,12 @@ import pt.unl.fct.di.tardis.babel.iot.api.notifications.IoTInputNotification;
  */
 public class EncoderNotification extends IoTInputNotification<Rotation> {
 
-    /** Babel notification id used to dispatch this event. */
-    public static final short NOTIFICATION_ID = 4021;
+    /**
+     * Babel notification id used to dispatch this event. <b>ID:</b> {@value}.
+     * Handler class: notification. Owning protocol:
+     * {@code DigitalInputControlProtocol} (id 2200).
+     */
+    public static final short NOTIFICATION_ID = 2201;
 
     /**
      * @param handle the handle of the encoder that produced the rotation

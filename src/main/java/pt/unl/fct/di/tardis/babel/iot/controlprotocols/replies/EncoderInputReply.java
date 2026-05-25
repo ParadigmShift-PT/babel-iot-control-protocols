@@ -18,8 +18,13 @@ import pt.unl.fct.di.tardis.babel.iot.api.replies.IoTInputReply;
  */
 public class EncoderInputReply extends IoTInputReply {
 
-    /** Default Babel reply id used by this class. */
-    public static final short REPLY_ID = 4014;
+    /**
+     * Default Babel reply id used by this class. <b>ID:</b> {@value}.
+     * Handler class: request/reply (shared pool — continues after the
+     * protocol's requests). Owning protocol:
+     * {@code DigitalInputControlProtocol} (id 2200).
+     */
+    public static final short REPLY_ID = 2204;
 
     private final GroveEncoder.Rotation rotation;
 

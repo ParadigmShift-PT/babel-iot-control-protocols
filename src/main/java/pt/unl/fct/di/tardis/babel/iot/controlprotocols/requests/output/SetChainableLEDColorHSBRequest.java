@@ -13,8 +13,12 @@ import pt.unl.fct.di.tardis.babel.iot.api.requests.IoTEventRequest;
  */
 public class SetChainableLEDColorHSBRequest extends IoTEventRequest {
 
-    /** Default Babel request id used by this class. */
-    public static final short REQUEST_ID = 8022;
+    /**
+     * Default Babel request id used by this class. <b>ID:</b> {@value}.
+     * Handler class: request/reply (shared pool). Owning protocol:
+     * {@code DigitalOutputControlProtocol} (id 2300).
+     */
+    public static final short REQUEST_ID = 2301;
 
     private final byte idx;
     private final float hue;
