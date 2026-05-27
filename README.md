@@ -204,6 +204,18 @@ sendRequest(
 > standard Pi4J runtime providers (`raspberrypi`, `linuxfs`, `gpiod`,
 > `pigpio`, `mock`). They will compile on any platform but will fail
 > at runtime elsewhere because of the underlying native libraries.
+>
+> **OS package requirement:** `I2CScanner` shells out to the system
+> `i2cdetect` utility to enumerate connected I²C devices. On Raspbian
+> / Raspberry Pi OS (and any Debian-based distro) install it with:
+>
+> ```bash
+> sudo apt install i2c-tools
+> ```
+>
+> Without this package the protocols start but every I²C device probe
+> fails with `Cannot run program "i2cdetect": error=2, No such file or
+> directory`.
 
 ---
 
