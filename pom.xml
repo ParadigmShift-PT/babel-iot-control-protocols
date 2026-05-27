@@ -6,7 +6,7 @@
 
     <groupId>pt.paradigmshift.iot</groupId>
     <artifactId>babel-iot-control-protocols</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <name>Babel IoT Control Protocols</name>
     <description>
         Concrete Babel protocols that drive IoT devices attached to a
@@ -142,6 +142,14 @@
             <groupId>pt.paradigmshift.iot</groupId>
             <artifactId>pi4j-iot-device-library</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <!-- Single process-wide Pi4J context. The protocols no longer build
+             their own context (which collided when several ran in one JVM);
+             they all share the one held by SharedPi4J. -->
+        <dependency>
+            <groupId>pt.paradigmshift.iot</groupId>
+            <artifactId>pi4j-shared-context</artifactId>
+            <version>0.1.0</version>
         </dependency>
         <dependency>
             <groupId>pt.paradigmshift.iot</groupId>

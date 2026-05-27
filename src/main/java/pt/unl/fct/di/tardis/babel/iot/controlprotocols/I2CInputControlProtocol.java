@@ -1,17 +1,7 @@
 package pt.unl.fct.di.tardis.babel.iot.controlprotocols;
 
-import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
-import com.pi4j.library.pigpio.PiGpio;
-import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalInputProvider;
-import com.pi4j.plugin.gpiod.provider.gpio.digital.GpioDDigitalOutputProvider;
-import com.pi4j.plugin.linuxfs.provider.i2c.LinuxFsI2CProvider;
-import com.pi4j.plugin.pigpio.provider.gpio.digital.PiGpioDigitalInputProvider;
-import com.pi4j.plugin.pigpio.provider.gpio.digital.PiGpioDigitalOutputProvider;
-import com.pi4j.plugin.pigpio.provider.pwm.PiGpioPwmProvider;
-import com.pi4j.plugin.pigpio.provider.serial.PiGpioSerialProvider;
-import com.pi4j.plugin.pigpio.provider.spi.PiGpioSpiProvider;
-import com.pi4j.plugin.raspberrypi.platform.RaspberryPiPlatform;
+import pt.paradigmshift.iot.pi4j.SharedPi4J;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,25 +85,10 @@ public class I2CInputControlProtocol extends GenericProtocol {
     public I2CInputControlProtocol() {
         super(PROTOCOL_NAME, PROTOCOL_ID);
 
-        final PiGpio piGpio = PiGpio.newNativeInstance();
-
-        pi4j = Pi4J.newContextBuilder()
-                   .noAutoDetect()
-                   .add(new RaspberryPiPlatform() {
-                       @Override
-                       protected String[] getProviders() {
-                           return new String[] {};
-                       }
-                   })
-                   .add(PiGpioDigitalInputProvider.newInstance(piGpio),
-                        PiGpioDigitalOutputProvider.newInstance(piGpio),
-                        PiGpioPwmProvider.newInstance(piGpio),
-                        PiGpioSerialProvider.newInstance(piGpio),
-                        PiGpioSpiProvider.newInstance(piGpio),
-                        GpioDDigitalInputProvider.newInstance(),
-                        GpioDDigitalOutputProvider.newInstance(),
-                        LinuxFsI2CProvider.newInstance())
-                   .build();
+        // Use the one shared process-wide Pi4J context. Building a private
+        // context here would collide with any other Pi4J consumer in the JVM
+        // (the LoRa HAT, the other control protocols) — see SharedPi4J.
+        pi4j = SharedPi4J.get();
 
         this.scanner = I2CScanner.getInstance();
         this.monitor = IoTMonitoringService.getInstance();
